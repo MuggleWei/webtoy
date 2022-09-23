@@ -1,0 +1,23 @@
+host: "0.0.0.0"
+port: 8080
+log:
+  level: debug
+  file: ./log/webtoy-captcha.log
+  console: true
+sr:
+  host: 127.0.0.1
+  port: 8500
+  service: 
+    host: 10.0.2.15
+    port: 8080
+    name: webtoy-captcha
+    id: webtoy-captcha-0
+    tag: ""
+    ttl: 15s
+redis:
+  host: 127.0.0.1
+  port: 6379
+  db: 0
+  passwd: "wsz123"
+session:
+  expired: 1m

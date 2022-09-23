@@ -61,3 +61,53 @@ services:
       options:
         max-size: "512m"
         max-file: 3
+  #gate1:
+  #  build:
+  #    context: ./backend
+  #    dockerfile: ./gate.Dockerfile
+  #  image: webtoy-gate:0.0.1
+  #  restart: always
+  #  ports:
+  #    - 8081:8080
+  #  volumes:
+  #    - ./backend/webtoy_gate/config:/etc/webtoy_gate:ro
+  #    - ./docker_volume/gate1/log:/app/bin/log
+  #  command: "webtoy_gate --sr.host=consul --sr.service.host=gate1 --sr.service.id=webtoy-gate-1 --redis.host=redis"
+  #gate2:
+  #  build:
+  #    context: ./backend
+  #    dockerfile: ./gate.Dockerfile
+  #  image: webtoy-gate:0.0.1
+  #  restart: always
+  #  ports:
+  #    - 8082:8080
+  #  volumes:
+  #    - ./backend/webtoy_gate/config:/etc/webtoy_gate:ro
+  #    - ./docker_volume/gate2/log:/app/bin/log
+  #  command: "webtoy_gate --sr.host=consul --sr.service.host=gate2 --sr.service.id=webtoy-gate-2 --redis.host=redis"
+  #gate3:
+  #  build:
+  #    context: ./backend
+  #    dockerfile: ./gate.Dockerfile
+  #  image: webtoy-gate:0.0.1
+  #  restart: always
+  #  ports:
+  #    - 8083:8080
+  #  volumes:
+  #    - ./backend/webtoy_gate/config:/etc/webtoy_gate:ro
+  #    - ./docker_volume/gate3/log:/app/bin/log
+  #  command: "webtoy_gate --sr.host=consul --sr.service.host=gate3 --sr.service.id=webtoy-gate-3 --redis.host=redis"
+  captcha1:
+    build:
+      context: ./backend
+      dockerfile: ./captcha.Dockerfile
+    image: webtoy-captcha:0.0.1
+    restart: always
+    ports:
+      - 8181:8080
+    volumes:
+      - ./backend/webtoy_captcha/config:/etc/webtoy_captcha:ro
+      - ./docker_volume/captcha1/log:/app/bin/log
+    # TODO: 暂时使用10.0.2.15, 方便本地测试
+    #command: "webtoy_captcha --sr.host=consul --sr.service.host=captcha1 --sr.service.id=webtoy-captcha-1 --redis.host=redis"
+    command: "webtoy_captcha --sr.host=consul --sr.service.host=10.0.2.15 --sr.service.port=8181 --sr.service.id=webtoy-captcha-1 --redis.host=redis"
