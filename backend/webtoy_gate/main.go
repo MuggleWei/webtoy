@@ -54,6 +54,35 @@ func initComponents(conf *GateConfig) {
 	sessionComponent.Handler.RedisClient = redisComponent.Client
 }
 
+func RegisterPublicRoute(router *mux.Router, path string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(path, f)
+}
+
+func RegisterPrivateRoute(router *mux.Router, path string, f func(http.ResponseWriter, *http.Request)) {
+	sessionHandler := base.GetSessionComponent().Handler
+	router.Handle(path, sessionHandler.MiddlewareSessionCheck(http.HandlerFunc(f)))
+}
+
+func initRoutes() *mux.Router {
+	router := mux.NewRouter()
+
+	echoController := controller.GetEchoController()
+	RegisterPublicRoute(router, "/api/v1/echo", echoController.Echo)
+
+	userController := controller.GetUserController()
+	userRouter := router.PathPrefix("/api/v1/user").Subrouter()
+	RegisterPublicRoute(userRouter, "/login", userController.Login)
+	RegisterPublicRoute(userRouter, "/register", userController.Register)
+	RegisterPrivateRoute(userRouter, "/profile", userController.Profile)
+
+	captchaController := controller.GetCaptchaController()
+	RegisterPublicRoute(router, "/api/v1/captcha/load", captchaController.Load)
+
+	router.Use(base.MiddlewareTimeElapsed)
+
+	return router
+}
+
 func main() {
 	conf, err := InitConfig()
 	if err != nil {
@@ -74,24 +103,11 @@ func main() {
 	log.Infof("init components")
 	initComponents(conf)
 
+	// init routes
+	log.Infof("init routes")
+	router := initRoutes()
+
 	// http server
-	log.Infof("init http server")
-	router := mux.NewRouter()
-
-	echoController := controller.GetEchoController()
-	router.HandleFunc("/api/v1/echo", echoController.Echo)
-
-	userController := controller.GetUserController()
-	userRouter := router.PathPrefix("/api/v1/user").Subrouter()
-	userRouter.HandleFunc("/login", userController.Login)
-	userRouter.HandleFunc("/register", userController.Register)
-	userRouter.HandleFunc("/profile", userController.Profile)
-
-	captchaController := controller.GetCaptchaController()
-	router.HandleFunc("/api/v1/captcha/load", captchaController.Load)
-
-	router.Use(base.MiddlewareTimeElapsed)
-
 	srv := &http.Server{
 		Handler:      router,
 		Addr:         fmt.Sprintf("%v:%v", conf.host, conf.port),

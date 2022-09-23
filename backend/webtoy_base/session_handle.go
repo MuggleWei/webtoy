@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -15,9 +16,9 @@ import (
 )
 
 const (
-	SessionAuthorityUser = "session_authority_user"
-	CookieSessionID      = "session_id"
-	CookieSessionToken   = "session_token"
+	SESSION_USER  = "userId"
+	SESSION_ID    = "session"
+	SESSION_TOKEN = "token"
 )
 
 type SessionHandler struct {
@@ -37,61 +38,40 @@ func NewSessionHandler(redisClient *redis.Client, sessionExpireSecond int) *Sess
 	}
 }
 
-func (this *SessionHandler) Middleware(h http.Handler) http.Handler {
+func (this *SessionHandler) MiddlewareSessionCheck(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookieSessionID, err := r.Cookie(CookieSessionID)
-		if err != nil {
-			log.Debugf("failed get %v from cookie", cookieSessionID)
-			HttpResponse(w, &MessageRsp{
-				Code:   ERROR_AUTH,
-				ErrMsg: "request without authority",
-			})
-			return
-		}
+		log.Debugf("middleware session check: url=%v", r.URL.Path)
+		userSessionID := r.Header.Get(SESSION_ID)
+		userSessionToken := r.Header.Get(SESSION_TOKEN)
 
-		cookieToken, err := r.Cookie(CookieSessionToken)
-		if err != nil {
-			log.Debugf("failed get %v from cookie", CookieSessionToken)
-			HttpResponse(w, &MessageRsp{
-				Code:   ERROR_AUTH,
-				ErrMsg: "request without authority",
-			})
-			return
-		}
-
-		stringCmd := this.RedisClient.Get(cookieSessionID.Value)
-		if stringCmd.Err() != nil {
-			HttpResponse(w, &MessageRsp{
-				Code:   ERROR_AUTH,
-				ErrMsg: "session expired",
-			})
-			return
-		}
-
-		var session Session
-		err = json.Unmarshal([]byte(stringCmd.Val()), &session)
+		userID, err := this.UpdateSession(userSessionID, userSessionToken)
 		if err != nil {
 			HttpResponse(w, &MessageRsp{
-				Code:   ERROR_INTERNAL,
-				ErrMsg: "failed decode session",
-			})
-			return
-		}
-
-		if session.Token != cookieToken.Value {
-			HttpResponse(w, &MessageRsp{
 				Code:   ERROR_AUTH,
-				ErrMsg: "token not equal",
+				ErrMsg: err.Error(),
 			})
 			return
 		}
 
-		r.Header.Set(SessionAuthorityUser, session.UserID)
+		r.Header.Set(SESSION_USER, userID)
 
-		//this.RedisClient.Expire(stringCmd.Val(), time.Second*time.Duration(this.SessionExpireSecond))
-		this.RedisClient.Expire(cookieSessionID.Value, time.Second*time.Duration(this.SessionExpireSecond))
+		next.ServeHTTP(w, r)
+	})
+}
 
-		h.ServeHTTP(w, r)
+func (this *SessionHandler) MiddlewareSessionUpdate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userSessionID := r.Header.Get(SESSION_ID)
+		userSessionToken := r.Header.Get(SESSION_TOKEN)
+
+		if len(userSessionID) > 0 && len(userSessionToken) > 0 {
+			userID, err := this.UpdateSession(userSessionID, userSessionToken)
+			if err == nil {
+				r.Header.Set(SESSION_USER, userID)
+			}
+		}
+
+		next.ServeHTTP(w, r)
 	})
 }
 
@@ -114,10 +94,10 @@ func (this *SessionHandler) GenSession(userID int64, w *http.ResponseWriter) (st
 		return "", nil, err
 	}
 
-	cookieSessionID := http.Cookie{Name: CookieSessionID, Value: sessionID, MaxAge: this.SessionExpireSecond, Path: "/"}
+	cookieSessionID := http.Cookie{Name: SESSION_ID, Value: sessionID, MaxAge: this.SessionExpireSecond, Path: "/"}
 	http.SetCookie(*w, &cookieSessionID)
 
-	cookieToken := http.Cookie{Name: CookieSessionToken, Value: token, MaxAge: this.SessionExpireSecond, Path: "/"}
+	cookieToken := http.Cookie{Name: SESSION_TOKEN, Value: token, MaxAge: this.SessionExpireSecond, Path: "/"}
 	http.SetCookie(*w, &cookieToken)
 
 	return sessionID, session, nil
@@ -145,4 +125,26 @@ func (this *SessionHandler) SaveSession(sessionID string, session *Session) erro
 
 	statusCmd := this.RedisClient.Set(sessionID, string(jsonBytes), time.Second*time.Duration(this.SessionExpireSecond))
 	return statusCmd.Err()
+}
+
+// refresh session
+func (this *SessionHandler) UpdateSession(userSessionID, userSessionToken string) (string, error) {
+	stringCmd := this.RedisClient.Get(userSessionID)
+	if stringCmd.Err() != nil {
+		return "", errors.New("session not exists")
+	}
+
+	var session Session
+	err := json.Unmarshal([]byte(stringCmd.Val()), &session)
+	if err != nil {
+		return "", err
+	}
+
+	if session.Token != userSessionToken {
+		return "", errors.New("incorrect session")
+	}
+
+	this.RedisClient.Expire(userSessionID, time.Second*time.Duration(this.SessionExpireSecond))
+
+	return session.UserID, nil
 }

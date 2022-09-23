@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sync"
 
+	base "github.com/MuggleWei/webtoy/backend/webtoy_base"
 	"github.com/MuggleWei/webtoy/backend/webtoy_gate/model"
 	"github.com/MuggleWei/webtoy/backend/webtoy_gate/service"
 	log "github.com/sirupsen/logrus"
@@ -52,4 +53,6 @@ func (this *UserController) Register(w http.ResponseWriter, r *http.Request) {
 
 // get user profile
 func (this *UserController) Profile(w http.ResponseWriter, r *http.Request) {
+	// TODO:
+	base.HttpResponse(w, &base.MessageRsp{})
 }
