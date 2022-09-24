@@ -11,7 +11,7 @@ import (
 
 type MessageRsp struct {
 	Code   int         `json:"code,omitempty"`
-	ErrMsg string      `json:"err_msg,omitempty"`
+	ErrMsg string      `json:"msg,omitempty"`
 	Data   interface{} `json:"data,omitempty"`
 }
 

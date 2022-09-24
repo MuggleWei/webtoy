@@ -1,11 +1,11 @@
 package webtoy_base
 
 import (
-	"crypto/md5"
+	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -80,9 +80,14 @@ func (this *SessionHandler) GenSession(userID int64, w *http.ResponseWriter) (st
 
 	sessionID, err := this.GenSessionID()
 	if err != nil {
+		log.Errorf("failed GenSessionID")
 		return "", nil, err
 	}
-	token := this.GenToken(strUserID)
+	token, err := this.GenToken(strUserID)
+	if err != nil {
+		log.Errorf("failed GenToken")
+		return "", nil, err
+	}
 
 	session := &Session{
 		UserID: strUserID,
@@ -108,13 +113,18 @@ func (this *SessionHandler) GenSessionID() (string, error) {
 	return uuid.String(), nil
 }
 
-func (this *SessionHandler) GenToken(plainText string) string {
-	salt := time.Now().Unix()
-	m5 := md5.New()
-	m5.Write([]byte(plainText))
-	m5.Write([]byte(fmt.Sprint(salt)))
-	st := m5.Sum(nil)
-	return hex.EncodeToString(st)
+func (this *SessionHandler) GenToken(plainText string) (string, error) {
+	salt, err := this.GenerateRandomBytes(32)
+	if err != nil {
+		log.Errorf("failed generate random bytes")
+		return "", err
+	}
+
+	h := sha256.New()
+	h.Write([]byte(plainText))
+	h.Write([]byte(salt))
+	st := h.Sum(nil)
+	return hex.EncodeToString(st), nil
 }
 
 func (this *SessionHandler) SaveSession(sessionID string, session *Session) error {
@@ -147,4 +157,15 @@ func (this *SessionHandler) UpdateSession(userSessionID, userSessionToken string
 	this.RedisClient.Expire(userSessionID, time.Second*time.Duration(this.SessionExpireSecond))
 
 	return session.UserID, nil
+}
+
+func (this *SessionHandler) GenerateRandomBytes(n int) ([]byte, error) {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	// Note that err == nil only if we read len(b) bytes.
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
 }

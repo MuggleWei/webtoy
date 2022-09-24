@@ -8,5 +8,7 @@ type ModelUserLoginReq struct {
 }
 
 type ModelUserLoginRsp struct {
-	Id int64 `json:"user_id"`
+	Id      int64  `json:"user_id"`
+	Session string `json:"session"`
+	Token   string `json:"token"`
 }
