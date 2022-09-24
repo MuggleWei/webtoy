@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 
 	base "github.com/MuggleWei/webtoy/backend/webtoy_base"
 	"github.com/MuggleWei/webtoy/backend/webtoy_gate/utils"
+	msgCaptcha "github.com/MuggleWei/webtoy/backend/webtoy_msg_captcha"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -58,4 +60,35 @@ func (this *CaptchaService) Load(captchaSession string, w http.ResponseWriter) (
 	}
 
 	return b, nil
+}
+
+func (this *CaptchaService) Verify(captchaSessionID, captchaValue string) (bool, error) {
+	req := &msgCaptcha.MsgCaptchaVerifyReq{
+		CaptchaSessionID: captchaSessionID,
+		CaptchaValue:     captchaValue,
+	}
+
+	srClient := base.GetSrClientComponent().Client
+	addr, err := srClient.ClientLB.GetService(utils.CaptchaServiceName)
+	if err != nil {
+		errMsg := fmt.Sprintf("failed get service %v address", utils.CaptchaServiceName)
+		log.Errorf("%v", errMsg)
+		return false, errors.New(errMsg)
+	}
+	url := "http://" + addr + "/captcha/verify"
+
+	b, err := base.HttpClientPost(url, this.transport, req)
+	if err != nil {
+		log.Errorf("%v", err.Error())
+		return false, err
+	}
+
+	var rsp base.MessageRsp
+	err = json.Unmarshal(b, &rsp)
+	if err != nil {
+		log.Errorf("%v", err.Error())
+		return false, err
+	}
+
+	return rsp.Code == 0, nil
 }

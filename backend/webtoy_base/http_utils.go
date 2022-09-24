@@ -31,8 +31,33 @@ func HttpResponse(w http.ResponseWriter, res *MessageRsp) error {
 	return err
 }
 
+func HttpClientPost(url string, transport http.RoundTripper, req interface{}) ([]byte, error) {
+	b, err := json.Marshal(req)
+	if err != nil {
+		log.Errorf("failed marshal req message")
+		return nil, err
+	}
+
+	return HttpClientPostBytes(url, transport, b)
+}
+
+func HttpClientPostBytes(url string, transport http.RoundTripper, b []byte) ([]byte, error) {
+	log.Debugf("HttpClientPostBytes: %v", url)
+
+	client := &http.Client{Transport: transport}
+	rsp, err := client.Post(url, "application/json", bytes.NewBuffer(b))
+	if err != nil {
+		log.Errorf("failed HttpTransportGet %v", err.Error())
+		panic(err)
+	}
+	defer rsp.Body.Close()
+
+	return io.ReadAll(rsp.Body)
+}
+
 func HttpTransportGet(url string, transport http.RoundTripper, w http.ResponseWriter) ([]byte, error) {
 	log.Debugf("HttpTransportGet: %v", url)
+
 	client := &http.Client{Transport: transport}
 	rsp, err := client.Get(url)
 	if err != nil {

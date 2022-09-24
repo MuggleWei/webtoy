@@ -19,7 +19,7 @@
 <b>payload</b>
 ```
 {
-	"k": string,  // captcha session值
-	"v": string,  // captcha value值
+	"captcha_session": string,  // captcha session值
+	"captcha_value": string,  // captcha value值
 }
 ```

@@ -9,13 +9,13 @@ import (
 
 func MiddlewareTimeElapsed(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Debugf("recv url=%v, params=%v", r.URL.Path, r.URL.RawQuery)
+		log.Debugf("middleware time elapsed begin, url=%v", r.URL.Path)
 		startTime := time.Now()
 
 		next.ServeHTTP(w, r)
 
 		elapsedTime := time.Since(startTime)
-		log.Debugf("url=%v, params=%v, elapsed=%v",
-			r.URL.Path, r.URL.RawQuery, elapsedTime)
+		log.Debugf("middleware time elapsed end, url=%v, elapsed=%v",
+			r.URL.Path, elapsedTime)
 	})
 }

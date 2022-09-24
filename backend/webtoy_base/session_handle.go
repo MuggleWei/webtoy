@@ -40,7 +40,7 @@ func NewSessionHandler(redisClient *redis.Client, sessionExpireSecond int) *Sess
 
 func (this *SessionHandler) MiddlewareSessionCheck(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Debugf("middleware session check: url=%v", r.URL.Path)
+		log.Debugf("middleware session check begin: url=%v", r.URL.Path)
 		userSessionID := r.Header.Get(SESSION_ID)
 		userSessionToken := r.Header.Get(SESSION_TOKEN)
 
@@ -56,6 +56,8 @@ func (this *SessionHandler) MiddlewareSessionCheck(next http.Handler) http.Handl
 		r.Header.Set(SESSION_USER, userID)
 
 		next.ServeHTTP(w, r)
+
+		log.Debugf("middleware session check end: url=%v", r.URL.Path)
 	})
 }
 
@@ -75,7 +77,7 @@ func (this *SessionHandler) MiddlewareSessionUpdate(next http.Handler) http.Hand
 	})
 }
 
-func (this *SessionHandler) GenSession(userID int64, w *http.ResponseWriter) (string, *Session, error) {
+func (this *SessionHandler) GenSession(userID int64) (string, *Session, error) {
 	strUserID := strconv.FormatInt(userID, 10)
 
 	sessionID, err := this.GenSessionID()
@@ -98,12 +100,6 @@ func (this *SessionHandler) GenSession(userID int64, w *http.ResponseWriter) (st
 	if err != nil {
 		return "", nil, err
 	}
-
-	cookieSessionID := http.Cookie{Name: SESSION_ID, Value: sessionID, MaxAge: this.SessionExpireSecond, Path: "/"}
-	http.SetCookie(*w, &cookieSessionID)
-
-	cookieToken := http.Cookie{Name: SESSION_TOKEN, Value: token, MaxAge: this.SessionExpireSecond, Path: "/"}
-	http.SetCookie(*w, &cookieToken)
 
 	return sessionID, session, nil
 }

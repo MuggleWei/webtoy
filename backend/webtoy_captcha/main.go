@@ -10,6 +10,7 @@ import (
 	"time"
 
 	base "github.com/MuggleWei/webtoy/backend/webtoy_base"
+	msgCaptcha "github.com/MuggleWei/webtoy/backend/webtoy_msg_captcha"
 	"github.com/dchest/captcha"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -113,7 +114,12 @@ func Load(w http.ResponseWriter, r *http.Request) {
 		}
 		sessionID = "captcha_" + sessionID
 
-		cookie := http.Cookie{Name: "captcha_session", Value: sessionID, MaxAge: expireSecond}
+		cookie := http.Cookie{
+			Name:   "captcha_session",
+			Value:  sessionID,
+			Path:   "/",
+			MaxAge: expireSecond,
+		}
 		http.SetCookie(w, &cookie)
 	}
 
@@ -134,13 +140,15 @@ func Load(w http.ResponseWriter, r *http.Request) {
 
 func Verify(w http.ResponseWriter, r *http.Request) {
 	// parse request
-	var req ModelCaptchaVerify
+	var req msgCaptcha.MsgCaptchaVerifyReq
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		log.Warningf("failed parse body: %v", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	log.Debugf("verify captcha: k=%v, v=%v", req.CaptchaSessionID, req.CaptchaValue)
 
 	redisClient := base.GetRedisComponent().Client
 	statusCmd := redisClient.Get(req.CaptchaSessionID)
@@ -178,6 +186,8 @@ func SaveCaptchaVal(val []byte, uuid string) error {
 	for _, v := range val {
 		s = s + strconv.Itoa(int(v))
 	}
+
+	log.Debugf("save captcha: k=%v, v=%v", uuid, s)
 
 	statusCmd := base.GetRedisComponent().Client.Set(uuid, s, time.Second*time.Duration(expireSecond))
 	return statusCmd.Err()

@@ -4,8 +4,11 @@ go 1.19
 
 replace github.com/MuggleWei/webtoy/backend/webtoy_base => ../webtoy_base
 
+replace github.com/MuggleWei/webtoy/backend/webtoy_msg_captcha => ../webtoy_msg_captcha
+
 require (
 	github.com/MuggleWei/webtoy/backend/webtoy_base v0.0.0-00010101000000-000000000000
+	github.com/MuggleWei/webtoy/backend/webtoy_msg_captcha v0.0.0-00010101000000-000000000000
 	github.com/gorilla/mux v1.8.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/pflag v1.0.5

@@ -4,4 +4,5 @@ const (
 	ERROR_OK       = 0
 	ERROR_INTERNAL = 501 // 内部错误
 	ERROR_AUTH     = 502 // 认证错误(无法获取session, token过期等)
+	ERROR_BAD_REQ  = 503 // 客户端错误的请求
 )
