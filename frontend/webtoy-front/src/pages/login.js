@@ -41,6 +41,9 @@ class Login extends React.Component {
         this.state = {
             captchaLoadTime: Date.now(),
             rememberMeChecked: false,
+            authError: false,
+            authErrorText: "",
+            captchaError: false,
         }
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -54,8 +57,8 @@ class Login extends React.Component {
 
         // login
         requests.post(url.api.login, {
-            user: data.get("user"),
-            password: data.get("password"),
+            name: data.get("user"),
+            passwd: data.get("password"),
             captcha_session: Cookies.get("captcha_session"),
             captcha_value: data.get("captcha"),
         }).then(rsp => {
@@ -70,10 +73,31 @@ class Login extends React.Component {
                     localStorage.setItem("token", rsp.data.token);
                 }
 
+                console.log(JSON.stringify(rsp));
+
                 // navigate to home
                 this.props.navigate(url.home, { replace: true });
             } else {
                 console.error(rsp.msg || "login failed");
+                if (rsp.code === ErrorCode.ERROR_CAPTCHA) {
+                    this.setState({
+                        authError: false,
+                        captchaError: true,
+                    })
+                } else if (rsp.code === ErrorCode.ERROR_AUTH) {
+                    this.setState({
+                        authError: true,
+                        authErrorText: "用户名或密码错误",
+                        captchaError: false,
+                    })
+                } else {
+                    this.setState({
+                        authError: true,
+                        authErrorText: "登录异常",
+                        captchaError: false,
+                    })
+                }
+                this.handleCaptchaClick();
             }
         })
     };
@@ -114,6 +138,8 @@ class Login extends React.Component {
                                 label="User"
                                 autoComplete="user"
                                 autoFocus
+                                error={this.state.authError === true}
+                                helperText={this.state.authError === true ? this.state.authErrorText : ""}
                             />
                             <TextField
                                 margin="normal"
@@ -124,6 +150,8 @@ class Login extends React.Component {
                                 label="Password"
                                 type="password"
                                 autoComplete="current-password"
+                                error={this.state.authError === true}
+                                helperText={this.state.authError === true ? this.state.authErrorText : ""}
                             />
                             <Grid container>
                                 <Grid container sx={{ width: 5 / 10 }}>
@@ -133,7 +161,8 @@ class Login extends React.Component {
                                         id="captcha"
                                         name="captcha"
                                         label="Captcha"
-
+                                        error={this.state.captchaError === true}
+                                        helperText={this.state.captchaError === true ? "验证码填写错误" : ""}
                                     />
                                 </Grid>
                                 <Grid sx={{ width: 1 / 10 }}>

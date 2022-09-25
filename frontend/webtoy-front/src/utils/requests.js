@@ -46,20 +46,22 @@ function put(url, data) {
 }
 
 function fillupSession(headers) {
+    let uid = sessionStorage.getItem("uid");
     let session = sessionStorage.getItem("session");
     let token = sessionStorage.getItem("token");
-    if (!session || !token) {
-        // session = Cookies.get("session");
-        // token = Cookies.get("token");
+    if (!uid || !session || !token) {
+        uid = localStorage.getItem("uid");
         session = localStorage.getItem("session");
         token = localStorage.getItem("token");
-        if (session && token) {
+        if (uid && session && token) {
+            sessionStorage.setItem("uid", uid);
             sessionStorage.setItem("session", session);
             sessionStorage.setItem("token", token);
         }
     }
 
-    if (session && token) {
+    if (uid && session && token) {
+        headers.set("uid", uid);
         headers.set("session", session);
         headers.set("token", token);
     }
