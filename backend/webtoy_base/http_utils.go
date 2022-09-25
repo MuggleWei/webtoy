@@ -3,9 +3,12 @@ package webtoy_base
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
+	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -31,6 +34,53 @@ func HttpResponse(w http.ResponseWriter, res *MessageRsp) error {
 	return err
 }
 
+// http service registry post
+func HttpSRPost(serviceName, urlPath string, transport http.RoundTripper, req interface{}, rspData interface{}) (*MessageRsp, error) {
+	log.Debugf("http service registry post: %v %v", serviceName, urlPath)
+
+	srClient := GetSrClientComponent().Client
+	addr, err := srClient.ClientLB.GetService(serviceName)
+	if err != nil {
+		errMsg := fmt.Sprintf("failed get service %v address", serviceName)
+		log.Errorf("%v", errMsg)
+		return nil, errors.New(errMsg)
+	}
+
+	url := "http://" + addr + urlPath
+
+	b, err := HttpClientPost(url, transport, req)
+	if err != nil {
+		log.Errorf("%v", err.Error())
+		return nil, err
+	}
+
+	var rsp MessageRsp
+	err = json.Unmarshal(b, &rsp)
+	if err != nil {
+		log.Errorf("failed unmarshal service response: %v, %v", err.Error(), string(b))
+		return nil, err
+	}
+
+	if rspData != nil {
+		decodeConfig := mapstructure.DecoderConfig{TagName: "json", Result: rspData}
+		decoder, err := mapstructure.NewDecoder(&decodeConfig)
+		if err != nil {
+			log.Errorf("failed new response data decoder")
+			return nil, err
+		}
+
+		err = decoder.Decode(rsp.Data)
+		if err != nil {
+			log.Errorf("failed decode response data: %v", err.Error())
+			return nil, err
+		}
+
+		rsp.Data = rspData
+	}
+
+	return &rsp, nil
+}
+
 func HttpClientPost(url string, transport http.RoundTripper, req interface{}) ([]byte, error) {
 	b, err := json.Marshal(req)
 	if err != nil {
@@ -50,6 +100,12 @@ func HttpClientPostBytes(url string, transport http.RoundTripper, b []byte) ([]b
 		log.Errorf("failed HttpTransportGet %v", err.Error())
 		panic(err)
 	}
+
+	if rsp.StatusCode != http.StatusOK {
+		log.Errorf("service return status code not equal 200")
+		return nil, errors.New("upstream serivce return " + fmt.Sprint(rsp.StatusCode))
+	}
+
 	defer rsp.Body.Close()
 
 	return io.ReadAll(rsp.Body)
@@ -90,8 +146,14 @@ func HttpTransportPostBytes(url string, transport http.RoundTripper, body []byte
 	rsp, err := client.Post(url, "application/json", bytes.NewBuffer(body))
 	if err != nil {
 		log.Errorf("failed HttpTransportPostBytes %v", err.Error())
-		panic(err)
+		return nil, err
 	}
+
+	if rsp.StatusCode != http.StatusOK {
+		log.Errorf("service return status code not equal 200")
+		return nil, err
+	}
+
 	defer rsp.Body.Close()
 
 	w.Header().Set("Content-Type", rsp.Header.Get("Content-Type"))

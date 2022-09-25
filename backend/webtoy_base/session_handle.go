@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -16,7 +15,7 @@ import (
 )
 
 const (
-	SESSION_USER  = "userId"
+	SESSION_USER  = "uid"
 	SESSION_ID    = "session"
 	SESSION_TOKEN = "token"
 )
@@ -27,8 +26,9 @@ type SessionHandler struct {
 }
 
 type Session struct {
-	UserID string `json:"user"`
-	Token  string `json:"token"`
+	UserID  string `json:"uid"`
+	Session string `json:"session"`
+	Token   string `json:"token"`
 }
 
 func NewSessionHandler(redisClient *redis.Client, sessionExpireSecond int) *SessionHandler {
@@ -41,11 +41,15 @@ func NewSessionHandler(redisClient *redis.Client, sessionExpireSecond int) *Sess
 func (this *SessionHandler) MiddlewareSessionCheck(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Debugf("middleware session check begin: url=%v", r.URL.Path)
-		userSessionID := r.Header.Get(SESSION_ID)
-		userSessionToken := r.Header.Get(SESSION_TOKEN)
+		session := Session{
+			UserID:  r.Header.Get(SESSION_USER),
+			Session: r.Header.Get(SESSION_ID),
+			Token:   r.Header.Get(SESSION_TOKEN),
+		}
 
-		userID, err := this.UpdateSession(userSessionID, userSessionToken)
+		err := this.UpdateSession(&session)
 		if err != nil {
+			log.Debugf("failed update session: %+v", session)
 			HttpResponse(w, &MessageRsp{
 				Code:   ERROR_AUTH,
 				ErrMsg: err.Error(),
@@ -53,55 +57,10 @@ func (this *SessionHandler) MiddlewareSessionCheck(next http.Handler) http.Handl
 			return
 		}
 
-		r.Header.Set(SESSION_USER, userID)
-
 		next.ServeHTTP(w, r)
 
 		log.Debugf("middleware session check end: url=%v", r.URL.Path)
 	})
-}
-
-func (this *SessionHandler) MiddlewareSessionUpdate(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userSessionID := r.Header.Get(SESSION_ID)
-		userSessionToken := r.Header.Get(SESSION_TOKEN)
-
-		if len(userSessionID) > 0 && len(userSessionToken) > 0 {
-			userID, err := this.UpdateSession(userSessionID, userSessionToken)
-			if err == nil {
-				r.Header.Set(SESSION_USER, userID)
-			}
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-func (this *SessionHandler) GenSession(userID int64) (string, *Session, error) {
-	strUserID := strconv.FormatInt(userID, 10)
-
-	sessionID, err := this.GenSessionID()
-	if err != nil {
-		log.Errorf("failed GenSessionID")
-		return "", nil, err
-	}
-	token, err := this.GenToken(strUserID)
-	if err != nil {
-		log.Errorf("failed GenToken")
-		return "", nil, err
-	}
-
-	session := &Session{
-		UserID: strUserID,
-		Token:  token,
-	}
-
-	err = this.SaveSession(sessionID, session)
-	if err != nil {
-		return "", nil, err
-	}
-
-	return sessionID, session, nil
 }
 
 func (this *SessionHandler) GenSessionID() (string, error) {
@@ -123,36 +82,67 @@ func (this *SessionHandler) GenToken(plainText string) (string, error) {
 	return hex.EncodeToString(st), nil
 }
 
-func (this *SessionHandler) SaveSession(sessionID string, session *Session) error {
+// generate and save user session
+func (this *SessionHandler) GenSession(userID string) (*Session, error) {
+	sessionID, err := this.GenSessionID()
+	if err != nil {
+		log.Errorf("failed GenSessionID")
+		return nil, err
+	}
+	token, err := this.GenToken(userID)
+	if err != nil {
+		log.Errorf("failed GenToken")
+		return nil, err
+	}
+
+	session := &Session{
+		UserID:  userID,
+		Session: sessionID,
+		Token:   token,
+	}
+
+	err = this.SaveSession(session)
+	if err != nil {
+		return nil, err
+	}
+
+	return session, nil
+}
+
+func (this *SessionHandler) SaveSession(session *Session) error {
 	jsonBytes, err := json.Marshal(session)
 	if err != nil {
 		return err
 	}
 
-	statusCmd := this.RedisClient.Set(sessionID, string(jsonBytes), time.Second*time.Duration(this.SessionExpireSecond))
+	sessionName := "session_" + session.UserID
+	statusCmd := this.RedisClient.Set(sessionName, string(jsonBytes), time.Second*time.Duration(this.SessionExpireSecond))
 	return statusCmd.Err()
 }
 
 // refresh session
-func (this *SessionHandler) UpdateSession(userSessionID, userSessionToken string) (string, error) {
-	stringCmd := this.RedisClient.Get(userSessionID)
+func (this *SessionHandler) UpdateSession(session *Session) error {
+	sessionName := "session_" + session.UserID
+	stringCmd := this.RedisClient.Get(sessionName)
 	if stringCmd.Err() != nil {
-		return "", errors.New("session not exists")
+		return errors.New("session not exists")
 	}
 
-	var session Session
-	err := json.Unmarshal([]byte(stringCmd.Val()), &session)
+	var retSession Session
+	err := json.Unmarshal([]byte(stringCmd.Val()), &retSession)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	if session.Token != userSessionToken {
-		return "", errors.New("incorrect session")
+	if session.UserID != retSession.UserID ||
+		session.Session != retSession.Session ||
+		session.Token != retSession.Token {
+		return errors.New("incorrect session")
 	}
 
-	this.RedisClient.Expire(userSessionID, time.Second*time.Duration(this.SessionExpireSecond))
+	this.RedisClient.Expire(session.UserID, time.Second*time.Duration(this.SessionExpireSecond))
 
-	return session.UserID, nil
+	return nil
 }
 
 func (this *SessionHandler) GenerateRandomBytes(n int) ([]byte, error) {

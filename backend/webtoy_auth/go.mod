@@ -1,16 +1,15 @@
-module github.com/MuggleWei/webtoy/backend/webtoy_captcha
+module github.com/MuggleWei/webtoy/backend/webtoy_auth
 
 go 1.19
 
 replace github.com/MuggleWei/webtoy/backend/webtoy_base => ../webtoy_base
 
-replace github.com/MuggleWei/webtoy/backend/webtoy_msg_captcha => ../webtoy_msg_captcha
+replace github.com/MuggleWei/webtoy/backend/webtoy_msg_auth => ../webtoy_msg_auth
 
 require (
 	github.com/MuggleWei/webtoy/backend/webtoy_base v0.0.0-00010101000000-000000000000
-	github.com/MuggleWei/webtoy/backend/webtoy_msg_captcha v0.0.0-00010101000000-000000000000
-	github.com/dchest/captcha v1.0.0
-	github.com/gorilla/mux v1.8.0
+	github.com/MuggleWei/webtoy/backend/webtoy_msg_auth v0.0.0-00010101000000-000000000000
+	github.com/gorilla/mux v1.7.3
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.13.0
@@ -51,6 +50,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
+	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

@@ -69,11 +69,12 @@ func initRoutes() *mux.Router {
 	echoController := controller.GetEchoController()
 	RegisterPublicRoute(router, "/api/v1/echo", echoController.Echo)
 
-	userController := controller.GetUserController()
+	authController := controller.GetAuthController()
 	userRouter := router.PathPrefix("/api/v1/user").Subrouter()
-	RegisterPublicRoute(userRouter, "/login", userController.Login)
-	RegisterPublicRoute(userRouter, "/register", userController.Register)
-	RegisterPrivateRoute(userRouter, "/profile", userController.Profile)
+	RegisterPublicRoute(userRouter, "/check", authController.UserCheck)
+	RegisterPublicRoute(userRouter, "/login", authController.UserLogin)
+	RegisterPublicRoute(userRouter, "/register", authController.UserRegister)
+	RegisterPrivateRoute(userRouter, "/profile", authController.UserProfile)
 
 	captchaController := controller.GetCaptchaController()
 	RegisterPublicRoute(router, "/api/v1/captcha/load", captchaController.Load)
