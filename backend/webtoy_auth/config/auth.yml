@@ -1,0 +1,25 @@
+host: "0.0.0.0"
+port: 8080
+log:
+  level: debug
+  file: ./log/webtoy-auth.log
+  console: true
+sr:
+  host: 127.0.0.1
+  port: 8500
+  service: 
+    host: 10.0.2.15
+    port: 8080
+    name: webtoy-auth
+    id: webtoy-auth-0
+    tag: ""
+    ttl: 15s
+db:
+  main:
+    driver: mysql
+    net: tcp
+    addr: 127.0.0.1:3306
+    params: "charset=utf8"
+    db: webtoy
+    user: muggle
+    passwd: "wsz123"

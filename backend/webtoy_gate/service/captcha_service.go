@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -68,23 +67,7 @@ func (this *CaptchaService) Verify(captchaSessionID, captchaValue string) (bool,
 		CaptchaValue:     captchaValue,
 	}
 
-	srClient := base.GetSrClientComponent().Client
-	addr, err := srClient.ClientLB.GetService(utils.CaptchaServiceName)
-	if err != nil {
-		errMsg := fmt.Sprintf("failed get service %v address", utils.CaptchaServiceName)
-		log.Errorf("%v", errMsg)
-		return false, errors.New(errMsg)
-	}
-	url := "http://" + addr + "/captcha/verify"
-
-	b, err := base.HttpClientPost(url, this.transport, req)
-	if err != nil {
-		log.Errorf("%v", err.Error())
-		return false, err
-	}
-
-	var rsp base.MessageRsp
-	err = json.Unmarshal(b, &rsp)
+	rsp, err := base.HttpSRPost(utils.CaptchaServiceName, "/captcha/verify", this.transport, req, nil)
 	if err != nil {
 		log.Errorf("%v", err.Error())
 		return false, err
