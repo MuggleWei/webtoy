@@ -39,6 +39,7 @@ class Login extends React.Component {
         this.urlCaptcha = url.api.captchaLoad;
 
         this.state = {
+            loginStatus: "wait",
             captchaLoadTime: Date.now(),
             rememberMeChecked: false,
             authError: false,
@@ -49,6 +50,18 @@ class Login extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleRememberMeChange = this.handleRememberMeChange.bind(this);
         this.handleCaptchaClick = this.handleCaptchaClick.bind(this);
+    }
+
+    componentDidMount() {
+        requests
+            .post(url.api.check, {})
+            .then(rsp => {
+                if (!rsp.code || rsp.code === ErrorCode.OK) {
+                    this.props.navigate(url.home, { replace: true });
+                } else {
+                    this.setState({ loginStatus: "unlogined" });
+                }
+            })
     }
 
     handleSubmit(e) {
@@ -113,86 +126,90 @@ class Login extends React.Component {
     }
 
     render() {
-        return (
-            <ThemeProvider theme={theme}>
-                <Container component="main" maxWidth="xs">
-                    <CssBaseline />
-                    <Grid
-                        sx={{
-                            marginTop: 8,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <Typography component="h1" variant="h5">
-                            Sign in
-                        </Typography>
-                        <Grid component="form" onSubmit={this.handleSubmit} noValidate sx={{ mt: 1 }}>
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="user"
-                                name="user"
-                                label="User"
-                                autoComplete="user"
-                                autoFocus
-                                error={this.state.authError === true}
-                                helperText={this.state.authError === true ? this.state.authErrorText : ""}
-                            />
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="password"
-                                name="password"
-                                label="Password"
-                                type="password"
-                                autoComplete="current-password"
-                                error={this.state.authError === true}
-                                helperText={this.state.authError === true ? this.state.authErrorText : ""}
-                            />
-                            <Grid container>
-                                <Grid container sx={{ width: 5 / 10 }}>
-                                    <TextField
-                                        margin="normal"
-                                        required
-                                        id="captcha"
-                                        name="captcha"
-                                        label="Captcha"
-                                        error={this.state.captchaError === true}
-                                        helperText={this.state.captchaError === true ? "验证码填写错误" : ""}
+        if (this.state.loginStatus === "wait") {
+            return (<div></div>);
+        } else {
+            return (
+                <ThemeProvider theme={theme}>
+                    <Container component="main" maxWidth="xs">
+                        <CssBaseline />
+                        <Grid
+                            sx={{
+                                marginTop: 8,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Typography component="h1" variant="h5">
+                                Sign in
+                            </Typography>
+                            <Grid component="form" onSubmit={this.handleSubmit} noValidate sx={{ mt: 1 }}>
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="user"
+                                    name="user"
+                                    label="User"
+                                    autoComplete="user"
+                                    autoFocus
+                                    error={this.state.authError === true}
+                                    helperText={this.state.authError === true ? this.state.authErrorText : ""}
+                                />
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id="password"
+                                    name="password"
+                                    label="Password"
+                                    type="password"
+                                    autoComplete="current-password"
+                                    error={this.state.authError === true}
+                                    helperText={this.state.authError === true ? this.state.authErrorText : ""}
+                                />
+                                <Grid container>
+                                    <Grid container sx={{ width: 5 / 10 }}>
+                                        <TextField
+                                            margin="normal"
+                                            required
+                                            id="captcha"
+                                            name="captcha"
+                                            label="Captcha"
+                                            error={this.state.captchaError === true}
+                                            helperText={this.state.captchaError === true ? "验证码填写错误" : ""}
+                                        />
+                                    </Grid>
+                                    <Grid sx={{ width: 1 / 10 }}>
+                                    </Grid>
+                                    <Box onClick={this.handleCaptchaClick}
+                                        sx={{ width: 4 / 10 }}
+                                        component="img"
+                                        src={`${this.urlCaptcha}?${this.state.captchaLoadTime}`}
+                                        alt="captcha"
                                     />
                                 </Grid>
-                                <Grid sx={{ width: 1 / 10 }}>
-                                </Grid>
-                                <Box onClick={this.handleCaptchaClick}
-                                    sx={{ width: 4 / 10 }}
-                                    component="img"
-                                    src={`${this.urlCaptcha}?${this.state.captchaLoadTime}`}
-                                    alt="captcha"
+                                <FormControlLabel
+                                    control={<Checkbox value="remember" color="primary" checked={this.state.rememberMeChecked} onChange={this.handleRememberMeChange} />}
+                                    label="Remember me"
+                                    name="rememberme"
                                 />
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    variant="contained"
+                                    sx={{ mt: 3, mb: 2 }}
+                                >
+                                    Sign In
+                                </Button>
                             </Grid>
-                            <FormControlLabel
-                                control={<Checkbox value="remember" color="primary" checked={this.state.rememberMeChecked} onChange={this.handleRememberMeChange} />}
-                                label="Remember me"
-                                name="rememberme"
-                            />
-                            <Button
-                                type="submit"
-                                fullWidth
-                                variant="contained"
-                                sx={{ mt: 3, mb: 2 }}
-                            >
-                                Sign In
-                            </Button>
                         </Grid>
-                    </Grid>
-                    <Copyright sx={{ mt: 8, mb: 4 }} />
-                </Container>
-            </ThemeProvider>
-        );
+                        <Copyright sx={{ mt: 8, mb: 4 }} />
+                    </Container>
+                </ThemeProvider>
+            );
+        }
     }
 }
 
