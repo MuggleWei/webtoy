@@ -54,11 +54,13 @@ func InitConfig() (*AuthConfig, error) {
 	pflag.String("sr.service.tag", "", "sr service tags")
 	pflag.String("sr.service.ttl", "3s", "sr ttl")
 
-	pflag.String("mysql.main.addr", "127.0.0.1:3306", "mysql main address")
-	pflag.String("mysql.main.params", "charset=utf8", "mysql main params")
-	pflag.String("mysql.main.db", "webtoy", "mysql main db")
-	pflag.String("mysql.main.user", "muggle", "mysql main user")
-	pflag.String("mysql.main.passwd", "wsz123", "mysql main passwd")
+	pflag.String("db.main.driver", "mysql", "db main driver")
+	pflag.String("db.main.net", "tcp", "db main net")
+	pflag.String("db.main.addr", "127.0.0.1:3306", "db main address")
+	pflag.String("db.main.params", "charset=utf8", "db main params")
+	pflag.String("db.main.db", "webtoy", "db main db")
+	pflag.String("db.main.user", "muggle", "db main user")
+	pflag.String("db.main.passwd", "wsz123", "db main passwd")
 
 	pflag.Parse()
 

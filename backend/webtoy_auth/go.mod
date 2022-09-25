@@ -16,8 +16,8 @@ require (
 )
 
 require (
-	github.com/MuggleWei/srclient/clb v0.0.1 // indirect
-	github.com/MuggleWei/srclient/srd v0.0.1 // indirect
+	github.com/MuggleWei/srclient/clb v0.0.2 // indirect
+	github.com/MuggleWei/srclient/srd v0.0.2 // indirect
 	github.com/armon/go-metrics v0.3.10 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect

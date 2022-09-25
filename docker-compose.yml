@@ -101,7 +101,7 @@ services:
     build:
       context: ./backend
       dockerfile: ./captcha.Dockerfile
-    image: webtoy-captcha:0.0.1
+    #image: webtoy-captcha:latest
     restart: always
     ports:
       - 8181:8080
@@ -111,3 +111,16 @@ services:
     # TODO: 暂时使用10.0.2.15, 方便本地测试
     #command: "webtoy_captcha --sr.host=consul --sr.service.host=captcha1 --sr.service.id=webtoy-captcha-1 --redis.host=redis"
     command: "webtoy_captcha --sr.host=consul --sr.service.host=10.0.2.15 --sr.service.port=8181 --sr.service.id=webtoy-captcha-1 --redis.host=redis"
+  auth1:
+    build:
+      context: ./backend
+      dockerfile: ./auth.Dockerfile
+    restart: always
+    ports:
+      - 8281:8080
+    volumes:
+      - ./backend/webtoy_auth/config:/etc/webtoy_auth:ro
+      - ./docker_volume/auth1/log:/app/bin/log
+    # TODO: 暂时使用10.0.2.15, 方便本地测试
+    #command: "webtoy_auth --sr.host=consul --sr.service.host=auth1 --sr.service.id=webtoy-auth-1 --db.main.addr=mysql:3306"
+    command: "webtoy_auth --sr.host=consul --sr.service.host=10.0.2.15 --sr.service.port=8281 --sr.service.id=webtoy-auth-1 --db.main.addr=mysql:3306"

@@ -45,10 +45,10 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
-github.com/MuggleWei/srclient/clb v0.0.1 h1:Ot2hrS1yi2jN5YVAozEILcTwzxG3h1ZISHBp07E4Cdc=
-github.com/MuggleWei/srclient/clb v0.0.1/go.mod h1:sVQGflY6g46xqNJ1JHvqRdNgcPV0VFneRGOKf1rbo6k=
-github.com/MuggleWei/srclient/srd v0.0.1 h1:8vMLkwXLyNUyqRgx0Rt5FlcYlnimkNdD1o1Rja/zhAY=
-github.com/MuggleWei/srclient/srd v0.0.1/go.mod h1:3kmpWiNy+zk2GKA1xByXt4mrHUdbolSdw8UV7WXMwfM=
+github.com/MuggleWei/srclient/clb v0.0.2 h1:bvu6cNATBT6RRTIj0knF7v6AQSXMOQKA37gjdm6uTEU=
+github.com/MuggleWei/srclient/clb v0.0.2/go.mod h1:Wud9qXbBP1hfi5hdW4rEDUwpHT9qXxQZTtRQEVO4mpM=
+github.com/MuggleWei/srclient/srd v0.0.2 h1:8H8q88LrGzeaxTD0zf9RvlCvneDKKmFc9QsFT6jRLdo=
+github.com/MuggleWei/srclient/srd v0.0.2/go.mod h1:3kmpWiNy+zk2GKA1xByXt4mrHUdbolSdw8UV7WXMwfM=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=

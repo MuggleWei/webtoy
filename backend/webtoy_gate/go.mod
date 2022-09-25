@@ -13,15 +13,14 @@ require (
 	github.com/MuggleWei/webtoy/backend/webtoy_msg_auth v0.0.0-00010101000000-000000000000
 	github.com/MuggleWei/webtoy/backend/webtoy_msg_captcha v0.0.0-00010101000000-000000000000
 	github.com/gorilla/mux v1.8.0
-	github.com/mitchellh/mapstructure v1.5.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.13.0
 )
 
 require (
-	github.com/MuggleWei/srclient/clb v0.0.1 // indirect
-	github.com/MuggleWei/srclient/srd v0.0.1 // indirect
+	github.com/MuggleWei/srclient/clb v0.0.2 // indirect
+	github.com/MuggleWei/srclient/srd v0.0.2 // indirect
 	github.com/armon/go-metrics v0.3.10 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
@@ -42,6 +41,7 @@ require (
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect

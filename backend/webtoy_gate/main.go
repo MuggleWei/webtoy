@@ -71,7 +71,7 @@ func initRoutes() *mux.Router {
 
 	authController := controller.GetAuthController()
 	userRouter := router.PathPrefix("/api/v1/user").Subrouter()
-	RegisterPublicRoute(userRouter, "/check", authController.UserCheck)
+	RegisterPrivateRoute(userRouter, "/check", authController.UserCheck)
 	RegisterPublicRoute(userRouter, "/login", authController.UserLogin)
 	RegisterPublicRoute(userRouter, "/register", authController.UserRegister)
 	RegisterPrivateRoute(userRouter, "/profile", authController.UserProfile)

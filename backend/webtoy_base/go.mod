@@ -3,8 +3,8 @@ module github.com/MuggleWei/webtoy/backend/webtoy_base
 go 1.19
 
 require (
-	github.com/MuggleWei/srclient/clb v0.0.1
-	github.com/MuggleWei/srclient/srd v0.0.1
+	github.com/MuggleWei/srclient/clb v0.0.2
+	github.com/MuggleWei/srclient/srd v0.0.2
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/mitchellh/mapstructure v1.4.1
