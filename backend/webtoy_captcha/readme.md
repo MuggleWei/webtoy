@@ -23,3 +23,7 @@
 	"captcha_value": string,  // captcha value值
 }
 ```
+<b>return</b>
+```
+仅包含通用结构
+```
