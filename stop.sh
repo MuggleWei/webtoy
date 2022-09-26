@@ -7,8 +7,9 @@ echo "---------------------------"
 echo "- stop docker"
 echo "---------------------------"
 
-sudo docker compose stop
-sudo docker compose rm -f
+#sudo docker compose stop
+#sudo docker compose rm -f
+sudo docker compose down
 
 echo "---------------------------"
 echo "- clean CA"

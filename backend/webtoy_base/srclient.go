@@ -58,10 +58,16 @@ func NewSRClient(args *SRClientArgs) (*SRClient, error) {
 			TTL:   args.SrServiceTTL,
 			Check: client.Check,
 		}
-		err = clientSD.Register(&registration)
-		if err != nil {
-			log.Errorf("failed init service discovery client: %v", err.Error())
-			return nil, err
+
+		for {
+			log.Infof("try register to service registry")
+			err = clientSD.Register(&registration)
+			if err != nil {
+				log.Errorf("failed init service registry client: %v", err.Error())
+				time.Sleep(5 * time.Second)
+				continue
+			}
+			break
 		}
 	}
 
