@@ -1,10 +1,10 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/home"
-import Login from "./pages/login"
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Home from "./pages/home";
+import Login from "./pages/login";
 import NotFound from "./pages/not-found";
 import Profile from "./pages/profile";
-import url from "./utils/url"
+import url from "./utils/url";
 
 class App extends React.Component {
     render() {
