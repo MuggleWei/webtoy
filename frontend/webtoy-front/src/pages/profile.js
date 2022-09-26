@@ -1,10 +1,10 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ErrorCode from "../utils/err-code";
 import requests from "../utils/requests";
 import url from "../utils/url";
 
-class ProfileWithNavigate extends React.Component {
+class Profile extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -20,7 +20,10 @@ class ProfileWithNavigate extends React.Component {
                     this.setState({ status: "success" });
                 } else if (rsp.code === ErrorCode.ERROR_AUTH) {
                     console.warn("failed Authentication:", rsp.err_msg)
-                    this.props.navigate(url.login, { replace: true });
+                    this.props.navigate(url.login, {
+                        replace: true,
+                        state: { from: this.props.location }
+                    });
                 } else {
                     console.error(rsp);
                 }
@@ -29,7 +32,7 @@ class ProfileWithNavigate extends React.Component {
 
     render() {
         if (this.state.status === "wait") {
-            return (<div>页面跳转中</div>)
+            return (<></>)
         } else {
             return (
                 <>
@@ -41,11 +44,12 @@ class ProfileWithNavigate extends React.Component {
 }
 
 
-function Profile(props) {
+function ProfileHook(props) {
     let navigate = useNavigate();
+    let location = useLocation();
     return (
-        <ProfileWithNavigate {...props} navigate={navigate} />
+        <Profile {...props} navigate={navigate} location={location} />
     );
 }
 
-export default Profile;
+export default ProfileHook;

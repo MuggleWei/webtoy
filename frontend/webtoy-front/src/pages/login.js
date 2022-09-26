@@ -11,7 +11,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Cookies from 'js-cookie';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import ErrorCode from '../utils/err-code';
 import requests from "../utils/requests";
@@ -86,10 +86,7 @@ class Login extends React.Component {
                     localStorage.setItem("token", rsp.data.token);
                 }
 
-                console.log(JSON.stringify(rsp));
-
-                // navigate to home
-                this.props.navigate(url.home, { replace: true });
+                this.props.navigate(this.props.from, { replace: true });
             } else {
                 console.error(rsp.msg || "login failed");
                 if (rsp.code === ErrorCode.ERROR_CAPTCHA) {
@@ -213,11 +210,14 @@ class Login extends React.Component {
     }
 }
 
-function LoginWithNavigation(props) {
+function LoginHook(props) {
     let navigate = useNavigate();
+    let location = useLocation();
+    console.info("from: ", location.state?.from?.pathname || "no previous");
+    let from = location.state?.from?.pathname || url.home;
     return (
-        <Login {...props} navigate={navigate} />
+        <Login {...props} navigate={navigate} from={from} />
     );
 }
 
-export default LoginWithNavigation;
+export default LoginHook;
