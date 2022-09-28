@@ -1,22 +1,12 @@
+import { Box } from "@mui/material";
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import url from "../utils/url";
 
-class Home extends React.Component {
-    render() {
-        return (
-            <>
-                <div>主页</div>
-                <Link to={url.login} state={{ from: this.props.location }}>登录</Link>
-            </>
-        )
-    }
-}
-
-function HomeHook(props) {
+function Home() {
     return (
-        <Home {...props} location={useLocation()} />
-    )
+        <Box>
+            Home Page
+        </Box>
+    );
 }
 
-export default HomeHook;
+export default Home;

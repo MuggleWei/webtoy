@@ -1,10 +1,9 @@
-
-const headers = new Headers({
-    "Accept": "application/json",
-    "Content-Type": "application/json",
-});
-
 function get(url) {
+    const headers = new Headers({
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    });
+
     return fetch(url, {
         method: "GET",
         headers: fillupSession(headers),
@@ -18,6 +17,11 @@ function get(url) {
 }
 
 function post(url, data) {
+    const headers = new Headers({
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    });
+
     return fetch(url, {
         method: "POST",
         headers: fillupSession(headers),
@@ -32,6 +36,11 @@ function post(url, data) {
 }
 
 function put(url, data) {
+    const headers = new Headers({
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    });
+    
     return fetch(url, {
         method: "PUT",
         headers: fillupSession(headers),

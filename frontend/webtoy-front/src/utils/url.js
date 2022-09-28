@@ -6,7 +6,7 @@ const url = {
         login: "/api/v1/user/login",
         check: "/api/v1/user/check",
         profile: "/api/v1/user/profile",
-        captchaLoad: "/api/v1/captcha/load",
+        captcha: "/api/v1/captcha/load",
     }
 };
 
