@@ -23,8 +23,8 @@ CREATE TABLE t_user (
 -- passwd: 123456
 -- ----------------
 INSERT INTO t_user
-(name, passwd)
+(name, passwd, show_name, email, phone)
 VALUES
-('foo', '$2a$10$mU.6kLEoCjOfq6RbLNPEIuOSYl5R6t5z.2BvS8Gs7mIcq40QL4f66'),
-('bar', '$2a$10$3ZbjN2wxw82r2WjuOHGn4ei.MbRs10.1k9Y3Tbqg2Omw8HVC3vmWe'),
-('baz', '$2a$10$yEl8tbZWQlGJBKjvS2WTr.Gtjha.EOjZcqj/NklSb/ydXzE4KdYJq');
+('foo', '$2a$10$mU.6kLEoCjOfq6RbLNPEIuOSYl5R6t5z.2BvS8Gs7mIcq40QL4f66', 'Foo', 'foo@webtoy.com', '86-111111'),
+('bar', '$2a$10$3ZbjN2wxw82r2WjuOHGn4ei.MbRs10.1k9Y3Tbqg2Omw8HVC3vmWe', 'Bar', 'bar@webtoy.com', '86-222222'),
+('baz', '$2a$10$yEl8tbZWQlGJBKjvS2WTr.Gtjha.EOjZcqj/NklSb/ydXzE4KdYJq', 'Baz', 'baz@webtoy.com', '86-333333');

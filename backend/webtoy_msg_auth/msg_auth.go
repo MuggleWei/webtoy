@@ -34,8 +34,9 @@ type MsgQueryUserReq struct {
 }
 
 type MsgQueryUserRsp struct {
-	UserID string `json:"uid"`
-	Name   string `json:"name,omitempty"`
-	Email  string `json:"email,omitempty"`
-	Phone  string `json:"phone,omitempty"`
+	UserID   string `json:"uid"`
+	Name     string `json:"name,omitempty"`
+	Email    string `json:"email,omitempty"`
+	Phone    string `json:"phone,omitempty"`
+	ShowName string `json:"show_name,omitempty"`
 }

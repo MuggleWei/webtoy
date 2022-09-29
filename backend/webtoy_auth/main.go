@@ -49,6 +49,7 @@ func initRoutes() *mux.Router {
 
 	authController := controller.GetAuthController()
 	router.HandleFunc("/user/auth", authController.UserAuth)
+	router.HandleFunc("/user/query", authController.UserQuery)
 
 	router.Use(base.MiddlewareTimeElapsed)
 

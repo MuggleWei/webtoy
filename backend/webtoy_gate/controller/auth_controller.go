@@ -130,6 +130,20 @@ func (this *AuthController) UserRegister(w http.ResponseWriter, r *http.Request)
 
 // get user profile
 func (this *AuthController) UserProfile(w http.ResponseWriter, r *http.Request) {
-	// TODO:
-	base.HttpResponse(w, &base.MessageRsp{})
+	// already auth by middleware
+	userID := r.Header.Get(base.SESSION_USER)
+
+	rsp, err := this.authService.UserQuery(&msgAuth.MsgQueryUserReq{
+		UserID: userID,
+	})
+	if err != nil {
+		log.Error("failed query user, %v", err.Error())
+		base.HttpResponse(w, &base.MessageRsp{
+			Code:   base.ERROR_INTERNAL,
+			ErrMsg: err.Error(),
+		})
+		return
+	}
+
+	base.HttpResponse(w, rsp)
 }

@@ -44,20 +44,46 @@ func (this *AuthService) UserAuth(req *msgAuth.MsgAuthUserReq) (*msgAuth.MsgAuth
 	}
 
 	if len(daos) != 1 {
-		err = errors.New("result not equal 1")
+		//err = errors.New("result not equal 1")
+		err = errors.New("failed auth user")
 		log.Errorf("failed auth user, query=%v, err=%v", *qry, err.Error())
 		return nil, err
 	}
 
 	daoUser := &daos[0]
 	if base.BCryptMatchPasswd(daoUser.Passwd, req.Passwd) != true {
-		err = errors.New("incorrect password")
+		//err = errors.New("incorrect password")
+		err = errors.New("failed auth user")
 		log.Errorf("failed auth user, query=%v, err=%v", qry, err.Error())
 		return nil, err
 	}
 
 	rsp := &msgAuth.MsgAuthUserRsp{
 		UserID: fmt.Sprint(daoUser.Id),
+	}
+
+	return rsp, nil
+}
+
+func (this *AuthService) UserQuery(req *msgAuth.MsgQueryUserReq) (*msgAuth.MsgQueryUserRsp, error) {
+	daos, err := this.userMapper.Query(req)
+	if err != nil {
+		log.Errorf("failed query user, query=%v, err=%v", *req, err.Error())
+		return nil, err
+	}
+
+	if len(daos) != 1 {
+		err = errors.New("result not equal 1")
+		log.Errorf("failed auth user, query=%v, err=%v", *req, err.Error())
+		return nil, err
+	}
+
+	daoUser := &daos[0]
+	rsp := &msgAuth.MsgQueryUserRsp{
+		UserID:   fmt.Sprint(daoUser.Id),
+		Name:     daoUser.Name,
+		Email:    daoUser.Email,
+		ShowName: daoUser.ShowName,
 	}
 
 	return rsp, nil

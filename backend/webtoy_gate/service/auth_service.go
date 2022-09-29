@@ -39,3 +39,9 @@ func (this *AuthService) UserAuth(req *msgAuth.MsgAuthUserReq) (*base.MessageRsp
 	var rspData msgAuth.MsgAuthUserRsp
 	return base.HttpSRPost(utils.AuthServiceName, urlPath, this.transport, req, &rspData)
 }
+
+func (this *AuthService) UserQuery(req *msgAuth.MsgQueryUserReq) (*base.MessageRsp, error) {
+	urlPath := "/user/query"
+	var rspData msgAuth.MsgQueryUserRsp
+	return base.HttpSRPost(utils.AuthServiceName, urlPath, this.transport, req, &rspData)
+}

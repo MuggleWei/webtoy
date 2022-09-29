@@ -49,13 +49,43 @@ func (this *AuthController) UserAuth(w http.ResponseWriter, r *http.Request) {
 
 	rsp, err := this.authService.UserAuth(&req)
 	if err != nil {
-		log.Debugf("user auth failed")
+		log.Debugf("user auth failed, %v", err.Error())
 		base.HttpResponse(w, &base.MessageRsp{
 			Code:   base.ERROR_AUTH,
 			ErrMsg: err.Error(),
 		})
 	} else {
 		log.Debugf("user auth success")
+		base.HttpResponse(w, &base.MessageRsp{
+			Data: rsp,
+		})
+	}
+}
+
+// user query
+func (this *AuthController) UserQuery(w http.ResponseWriter, r *http.Request) {
+	var req msgAuth.MsgQueryUserReq
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		log.Errorf("%v", err.Error())
+		base.HttpResponse(w, &base.MessageRsp{
+			Code:   base.ERROR_INTERNAL,
+			ErrMsg: err.Error(),
+		})
+		return
+	}
+
+	log.Debugf("user query, req=%+v", req)
+
+	rsp, err := this.authService.UserQuery(&req)
+	if err != nil {
+		log.Debugf("user query failed, %v", err.Error())
+		base.HttpResponse(w, &base.MessageRsp{
+			Code:   base.ERROR_COMMON,
+			ErrMsg: err.Error(),
+		})
+	} else {
+		log.Debugf("user query success, %+v", *rsp)
 		base.HttpResponse(w, &base.MessageRsp{
 			Data: rsp,
 		})
