@@ -1,4 +1,7 @@
-FROM golang:1.19.1-alpine
+# multi-stage builds
+
+# step 1
+FROM golang:1.19.3-alpine3.16 as builder
 
 # build
 ENV GO111MODULE=on
@@ -15,10 +18,12 @@ COPY ./webtoy_gate/ /app/src/webtoy_gate/
 WORKDIR /app/src/webtoy_gate
 RUN go build -o /app/bin/webtoy_gate
 
-# clean source
-RUN rm -rf /app/src
+# step 2
+FROM alpine:3.16
 
 # run
+RUN mkdir -p /app/bin
+COPY --from=builder /app/bin/ /app/bin
 EXPOSE 8080
 ENV PATH="/app/bin:${PATH}"
 WORKDIR /app/bin
