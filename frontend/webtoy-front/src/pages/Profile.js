@@ -1,4 +1,4 @@
-import { Box, Container, Paper } from "@mui/material";
+import { Container } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import requests from "../utils/requests";
@@ -24,7 +24,7 @@ function Profile() {
                     setUserProfileInfo(rsp.data);
                 }
             })
-    }, [])
+    }, [userProfileInfo, navigate, location])
 
     return (userProfileInfo
         ?
